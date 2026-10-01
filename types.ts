@@ -21,7 +21,7 @@ export interface CaseStudy {
   deliverables: string[];
   gradientTheme: string;
   accentColor: string;
-  imagePromptFallback: string;
+  imagePromptFallback?: string;
   award?: string;
   detailedContext?: {
     challenge: string;
@@ -86,6 +86,22 @@ export interface CreativeBriefState {
   budgetRange: string;
   timeline: string;
   vision: string;
+}
+
+export interface StudioGeneralInfo {
+  studioName: string;
+  tagline: string;
+  officialQuote: string;
+  officialParagraph: string;
+  city: string;
+  address: string;
+  foundedYear: string;
+  email: string;
+  phone: string;
+  founderName: string;
+  founderRole: string;
+  founderFocus: string;
+  founderBio: string;
 }
 
 export type PaletteMood = 'vermilion' | 'obsidian' | 'solaris' | 'kinetic-mint';

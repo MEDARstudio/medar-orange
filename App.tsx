@@ -33,7 +33,9 @@ import ProjectCard from './components/ProjectCard';
 import ProjectModal from './components/ProjectModal';
 import ServiceCard from './components/ServiceCard';
 import AIChat from './components/AIChat';
-import { CaseStudy, ProjectCategory, PaletteMood, AgencyService, TeamMember, StudioValue } from './types';
+import SecretAuthModal from './components/SecretAuthModal';
+import AdminCMSModal from './components/AdminCMSModal';
+import { CaseStudy, ProjectCategory, PaletteMood, AgencyService, TeamMember, StudioValue, StudioGeneralInfo } from './types';
 
 // Curated Agency Case Studies
 const PORTFOLIO_PROJECTS: CaseStudy[] = [
@@ -280,52 +282,153 @@ const AGENCY_SERVICES: AgencyService[] = [
   }
 ];
 
-// Founders & Leadership for Qui Sommes-Nous
-const STUDIO_FOUNDERS: TeamMember[] = [
-  {
-    name: 'Maximilien Medar',
-    role: 'Co-Fondateur & Directeur de Création',
-    focus: 'Identité de Marque, Typographie & Stratégie Plastique',
-    bio: 'Formé aux arts visuels et à la typographie éditoriale, Maximilien supervise la cohérence conceptuelle et l’ADN graphique de chaque marque. Obsédé par la pureté des lignes, le contraste radical et la puissance narrative du design.',
-    tag: 'Direction Créative & Typographie'
-  },
-  {
-    name: 'Raphaël Medar',
-    role: 'Co-Fondateur & Directeur Creative Tech & 3D',
-    focus: 'CGI, Modélisation 3D, WebGL & Rendu Temps Réel',
-    bio: 'Expert en modélisation 3D photoréaliste et technologies immersives, Raphaël transpose la précision horlogère et le design d’objet dans des univers digitaux spectaculaires et fluides à 60 images par seconde.',
-    tag: '3D CGI & Creative Engineering'
-  }
-];
+// Founder Profile & Approach for Qui Sommes-Nous
+const STUDIO_FOUNDER: TeamMember = {
+  name: 'Mohamed Amine Amarir',
+  role: 'Fondateur & Directeur Artistique',
+  focus: 'Design Graphique, Communication Visuelle, Design Sportif & 3D',
+  bio: 'Fondateur de Medar Studio, Mohamed Amine Amarir imagine et conçoit des solutions visuelles sur mesure pour les marques, entreprises, projets sportifs et créateurs. Son approche combine créativité, rigueur géométrique et sens aiguisé du détail pour métamorphoser chaque idée en une identité visuelle forte, moderne et mémorable.',
+  tag: 'Fondateur & Direction Artistique'
+};
 
-// Core Studio Values & Philosophy
-const STUDIO_VALUES: StudioValue[] = [
+// Core Approach Pillars derived from official manifesto
+const STUDIO_APPROACH: StudioValue[] = [
   {
     number: '01',
-    title: 'L’Artisanat d’Auteur',
-    description: 'Chaque création est sculptée à la main au sein de notre atelier. Nous refusons les modèles industriels préfabriqués pour offrir un geste artistique souverain et singulier.'
+    title: 'Solutions Sur Mesure',
+    description: 'Créations visuelles exclusives façonnées pour les marques, entreprises, projets sportifs et créateurs, sans gabarit préfabriqué.'
   },
   {
     number: '02',
-    title: 'La Synergie Art & Technique',
-    description: 'La beauté plastique n’a de sens que lorsqu’elle est portée par une ingénierie irréprochable. Du calibrage CMJN aux shaders 3D temps réel, la technique magnifie le design.'
+    title: 'Du Digital à l’Impression',
+    description: 'Une maîtrise intégrale de la chaîne visuelle, des campagnes numériques percutantes aux fichiers d’impression haute précision certifiés.'
   },
   {
     number: '03',
-    title: 'L’Exigence Absolue du Détail',
-    description: 'De l’approche micrométrique des glyphes typographiques aux reflets lumineux sur les matériaux 3D, aucun détail n’est laissé au hasard.'
+    title: 'Design Sportif & 3D',
+    description: 'Une expertise singulière combinant l’intensité des visuels de matchday et l’impact immersif de la modélisation 3D photoréaliste.'
   },
   {
     number: '04',
-    title: 'L’Indépendance & la Transparence',
-    description: 'Atelier 100% indépendant et autofinancé. Nous travaillons sans intermédiaire, avec une franchise totale et une implication passionnée sur chaque mission.'
+    title: 'Précision & Mémorabilité',
+    description: 'Un sens du détail sans compromis pour transformer chaque concept en une identité visuelle pérenne, moderne et marquante.'
   }
 ];
+
+// Default Studio General Info
+const DEFAULT_STUDIO_INFO: StudioGeneralInfo = {
+  studioName: 'Medar Studio',
+  tagline: 'Direction Artistique & Creative Tech',
+  officialQuote: 'Medar Studio est un studio créatif fondé par Mohamed Amine Amarir, dédié au design graphique et à la communication visuelle.',
+  officialParagraph: 'Nous créons des solutions visuelles sur mesure pour les marques, entreprises, projets sportifs et créateurs, du digital à l’impression, en passant par le design sportif et la 3D. Notre approche combine créativité, précision et sens du détail pour transformer chaque idée en une identité visuelle forte, moderne et mémorable.',
+  city: 'Paris 10e',
+  address: "28 Rue d'Hauteville, 75010 Paris",
+  foundedYear: '2021',
+  email: 'bonjour@medarstudio.fr',
+  phone: '+33 1 89 71 34 20',
+  founderName: 'Mohamed Amine Amarir',
+  founderRole: 'Fondateur & Directeur Artistique',
+  founderFocus: 'Design Graphique, Communication Visuelle, Design Sportif & 3D',
+  founderBio: 'Fondateur de Medar Studio, Mohamed Amine Amarir imagine et conçoit des solutions visuelles sur mesure pour les marques, entreprises, projets sportifs et créateurs. Son approche combine créativité, rigueur géométrique et sens aiguisé du détail pour métamorphoser chaque idée en une identité visuelle forte, moderne et mémorable.'
+};
 
 const App: React.FC = () => {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], [0, -80]);
   const opacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
+
+  // Dynamic Content with LocalStorage Persistence
+  const [projectsList, setProjectsList] = useState<CaseStudy[]>(() => {
+    try {
+      const saved = localStorage.getItem('medar_studio_projects');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return PORTFOLIO_PROJECTS;
+  });
+
+  const [servicesList, setServicesList] = useState<AgencyService[]>(() => {
+    try {
+      const saved = localStorage.getItem('medar_studio_services');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return AGENCY_SERVICES;
+  });
+
+  const [studioInfo, setStudioInfo] = useState<StudioGeneralInfo>(() => {
+    try {
+      const saved = localStorage.getItem('medar_studio_general');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return DEFAULT_STUDIO_INFO;
+  });
+
+  // Secret Admin Portal States
+  const [isSecretAuthOpen, setIsSecretAuthOpen] = useState(false);
+  const [isAdminCMSOpen, setIsAdminCMSOpen] = useState(false);
+  const secretClickCountRef = useRef(0);
+  const secretClickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Secret Footer 5 Clicks Trigger (completely silent, no counter displayed)
+  const handleSecretFooterClick = () => {
+    secretClickCountRef.current += 1;
+    if (secretClickTimerRef.current) {
+      clearTimeout(secretClickTimerRef.current);
+    }
+    if (secretClickCountRef.current >= 5) {
+      secretClickCountRef.current = 0;
+      setIsSecretAuthOpen(true);
+    } else {
+      secretClickTimerRef.current = setTimeout(() => {
+        secretClickCountRef.current = 0;
+      }, 3000);
+    }
+  };
+
+  const handleUpdateProjects = (newProjects: CaseStudy[]) => {
+    setProjectsList(newProjects);
+    try {
+      localStorage.setItem('medar_studio_projects', JSON.stringify(newProjects));
+    } catch (e) {
+      console.warn("Storage quota exceeded or unavailable:", e);
+    }
+  };
+
+  const handleUpdateServices = (newServices: AgencyService[]) => {
+    setServicesList(newServices);
+    try {
+      localStorage.setItem('medar_studio_services', JSON.stringify(newServices));
+    } catch (e) {
+      console.warn("Storage quota exceeded or unavailable:", e);
+    }
+  };
+
+  const handleUpdateStudioInfo = (newInfo: StudioGeneralInfo) => {
+    setStudioInfo(newInfo);
+    try {
+      localStorage.setItem('medar_studio_general', JSON.stringify(newInfo));
+    } catch (e) {
+      console.warn("Storage quota exceeded or unavailable:", e);
+    }
+  };
+
+  const handleResetDefaults = () => {
+    try {
+      localStorage.removeItem('medar_studio_projects');
+      localStorage.removeItem('medar_studio_services');
+      localStorage.removeItem('medar_studio_general');
+    } catch (e) {
+      console.warn("Storage unavailable:", e);
+    }
+    setProjectsList(PORTFOLIO_PROJECTS);
+    setServicesList(AGENCY_SERVICES);
+    setStudioInfo(DEFAULT_STUDIO_INFO);
+  };
 
   // States
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -345,10 +448,10 @@ const App: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Filter projects
+  // Filter projects dynamically
   const filteredProjects = selectedCategory === 'all'
-    ? PORTFOLIO_PROJECTS
-    : PORTFOLIO_PROJECTS.filter(p => p.category === selectedCategory);
+    ? projectsList
+    : projectsList.filter(p => p.category === selectedCategory);
 
   // Keyboard navigation for project modal
   useEffect(() => {
@@ -360,15 +463,15 @@ const App: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeProject]);
+  }, [activeProject, projectsList]);
 
   const navigateProject = (direction: 'next' | 'prev') => {
     if (!activeProject) return;
-    const currentIndex = PORTFOLIO_PROJECTS.findIndex(p => p.id === activeProject.id);
+    const currentIndex = projectsList.findIndex(p => p.id === activeProject.id);
     let nextIndex = direction === 'next' 
-      ? (currentIndex + 1) % PORTFOLIO_PROJECTS.length
-      : (currentIndex - 1 + PORTFOLIO_PROJECTS.length) % PORTFOLIO_PROJECTS.length;
-    setActiveProject(PORTFOLIO_PROJECTS[nextIndex]);
+      ? (currentIndex + 1) % projectsList.length
+      : (currentIndex - 1 + projectsList.length) % projectsList.length;
+    setActiveProject(projectsList[nextIndex]);
   };
 
   const scrollToSection = (id: string) => {
@@ -670,7 +773,7 @@ const App: React.FC = () => {
 
         {/* 6 Services Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {AGENCY_SERVICES.map((service, index) => (
+          {servicesList.map((service, index) => (
             <ServiceCard
               key={service.id}
               service={service}
@@ -684,158 +787,143 @@ const App: React.FC = () => {
       {/* 
         =======================================================================
         QUI SOMMES-NOUS — L'ATELIER MEDAR STUDIO
-        Identité de l'atelier, fondateurs, philosophie et valeurs d'excellence
+        Fondé par Mohamed Amine Amarir · Manifeste officiel et approche d'excellence
         =======================================================================
       */}
       <section id="qui-sommes-nous" className="py-24 md:py-32 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/[0.08] w-full box-border overflow-hidden">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 w-full">
-          <div>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 md:mb-16 gap-6 w-full">
+          <div className="max-w-2xl">
             <div className="text-xs font-mono text-[#ff4b26] uppercase tracking-widest mb-3 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#ff4b26] shrink-0" />
-              <span>L'Atelier Parisien · Manifeste & Vision</span>
+              <span>Studio Créatif · Fondé par {studioInfo.founderName}</span>
             </div>
-            <h2 className="font-heading text-3xl md:text-5xl font-bold tracking-tight text-white max-w-2xl break-words">
-              QUI SOMMES-NOUS — Un Atelier d'Auteur Dédié aux Marques Singulières.
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white break-words">
+              QUI SOMMES-NOUS
             </h2>
           </div>
           <p className="text-sm md:text-base text-neutral-400 max-w-md leading-relaxed break-words">
-            Fondé à Paris au cœur du 10e arrondissement, Medar Studio réconcilie la rigueur plastique des grands ateliers graphiques avec la puissance immersive des technologies digitales contemporaines.
+            Un studio créatif dédié au design graphique et à la communication visuelle, combinant créativité, précision et sens du détail.
           </p>
         </div>
 
-        {/* Narrative Manifest Card */}
+        {/* Narrative Manifest Card with User's Official Paragraph */}
         <div className="relative bg-[#111117] border border-white/[0.1] p-6 sm:p-8 md:p-12 mb-16 overflow-hidden w-full box-border">
           <div className="absolute top-0 right-0 w-80 h-80 bg-[#ff4b26]/10 blur-[90px] pointer-events-none" />
 
           <div className="relative z-10 max-w-4xl w-full">
             <span className="text-xs font-mono text-[#ff4b26] uppercase tracking-widest block mb-4">
-              L'ADN de Medar Studio
+              Manifeste & Présentation Officielle
             </span>
-            <p className="font-heading text-xl md:text-2xl lg:text-3xl text-white font-bold leading-snug tracking-tight mb-6 break-words">
-              « Nous avons fondé Medar Studio avec une conviction inébranlable : une marque ne marque les esprits que lorsqu'elle refuse la banalité des recettes préfabriquées. »
-            </p>
-            <p className="text-sm md:text-base text-neutral-300 leading-relaxed break-words">
-              Qu'il s'agisse de concevoir une identité visuelle pérenne, une série d'affiches Matchday au magnétisme brut ou une expérience 3D temps réel d'orfèvrerie, notre atelier n'admet aucun compromis. Chaque trait, chaque typographie et chaque texture est sculpté sur-mesure pour ancrer votre marque dans une classe à part.
+            <blockquote className="font-heading text-lg sm:text-xl md:text-2xl lg:text-3xl text-white font-bold leading-relaxed tracking-tight mb-6 break-words">
+              « <span className="text-white">{studioInfo.officialQuote}</span> »
+            </blockquote>
+            <p className="text-sm sm:text-base md:text-lg text-neutral-300 leading-relaxed font-normal break-words">
+              {studioInfo.officialParagraph}
             </p>
           </div>
 
           {/* Key Facts Ribbon */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pt-8 mt-8 border-t border-white/[0.08] text-xs font-mono w-full">
             <div className="min-w-0">
-              <span className="text-[11px] text-neutral-500 uppercase tracking-wider block mb-1">Localisation</span>
-              <span className="text-white font-bold text-sm block truncate">Paris 10e</span>
-              <span className="text-neutral-400 text-[11px] truncate block">28 Rue d'Hauteville</span>
+              <span className="text-[10px] sm:text-[11px] text-neutral-500 uppercase tracking-wider block mb-1">Fondateur</span>
+              <span className="text-white font-bold text-xs sm:text-sm block truncate">{studioInfo.founderName}</span>
+              <span className="text-neutral-400 text-[10px] sm:text-[11px] truncate block">{studioInfo.founderRole}</span>
             </div>
             <div className="min-w-0">
-              <span className="text-[11px] text-neutral-500 uppercase tracking-wider block mb-1">Indépendance</span>
-              <span className="text-white font-bold text-sm block truncate">Depuis 2021</span>
-              <span className="text-neutral-400 text-[11px] truncate block">100% Autofinancé</span>
+              <span className="text-[10px] sm:text-[11px] text-neutral-500 uppercase tracking-wider block mb-1">Discipline</span>
+              <span className="text-white font-bold text-xs sm:text-sm block truncate">Design Graphique</span>
+              <span className="text-neutral-400 text-[10px] sm:text-[11px] truncate block">Communication Visuelle</span>
             </div>
             <div className="min-w-0">
-              <span className="text-[11px] text-neutral-500 uppercase tracking-wider block mb-1">Expertise Unifiée</span>
-              <span className="text-white font-bold text-sm block truncate">6 Pôles Dédiés</span>
-              <span className="text-neutral-400 text-[11px] truncate block">Brand, 3D, Sports, Print</span>
+              <span className="text-[10px] sm:text-[11px] text-neutral-500 uppercase tracking-wider block mb-1">Expertises</span>
+              <span className="text-white font-bold text-xs sm:text-sm block truncate">Digital & Print</span>
+              <span className="text-neutral-400 text-[10px] sm:text-[11px] truncate block">Design Sportif & 3D</span>
             </div>
             <div className="min-w-0">
-              <span className="text-[11px] text-neutral-500 uppercase tracking-wider block mb-1">Interlocuteurs</span>
-              <span className="text-white font-bold text-sm block truncate">100% Direct</span>
-              <span className="text-neutral-400 text-[11px] truncate block">Zéro Intermédiaire</span>
+              <span className="text-[10px] sm:text-[11px] text-neutral-500 uppercase tracking-wider block mb-1">Approche</span>
+              <span className="text-white font-bold text-xs sm:text-sm block truncate">100% Sur Mesure</span>
+              <span className="text-neutral-400 text-[10px] sm:text-[11px] truncate block">Précision & Détail</span>
             </div>
           </div>
         </div>
 
-        {/* The Founders Section */}
+        {/* The Founder Card Spotlight */}
         <div className="mb-20 w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-3">
             <div>
               <span className="text-xs font-mono text-[#ff4b26] uppercase tracking-widest block mb-1">
-                Direction Artistique & Stratégie
+                Direction Créative & Vision
               </span>
               <h3 className="font-heading text-2xl md:text-3xl font-bold text-white tracking-tight">
-                Les Fondateurs de l'Atelier
+                Le Fondateur
               </h3>
             </div>
             <span className="text-xs font-mono text-neutral-400 uppercase tracking-widest border border-white/10 px-3 py-1 self-start sm:self-auto">
-              Binôme Créatif Complémentaire
+              {studioInfo.founderName}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 w-full">
-            {STUDIO_FOUNDERS.map((founder, idx) => (
-              <motion.div
-                key={founder.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.15 }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className="group bg-[#111117] hover:bg-[#14141e] border border-white/[0.08] hover:border-[#ff4b26] p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 relative overflow-hidden w-full box-border"
-              >
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#ff4b26] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-heading font-black text-white text-base group-hover:border-[#ff4b26] group-hover:bg-[#ff4b26]/10 transition-all shrink-0">
-                      {idx === 0 ? 'M' : 'R'}
-                    </div>
-                    <span className="text-[11px] font-mono text-neutral-400 border border-white/10 px-2.5 py-1">
-                      {founder.tag}
+          <div className="w-full">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="bg-[#111117] border border-white/[0.08] hover:border-[#ff4b26]/50 p-6 sm:p-10 transition-all duration-300 relative overflow-hidden w-full box-border"
+            >
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 w-full">
+                <div className="flex items-start sm:items-center gap-5">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#ff4b26] to-[#7f1d07] flex items-center justify-center font-heading font-black text-white text-xl sm:text-2xl shadow-[0_0_24px_rgba(255,75,38,0.35)] shrink-0">
+                    MA
+                  </div>
+                  <div>
+                    <h4 className="font-heading text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                      {studioInfo.founderName}
+                    </h4>
+                    <span className="text-xs sm:text-sm font-mono text-[#ff4b26] font-semibold block mt-1">
+                      {studioInfo.founderRole}
+                    </span>
+                    <span className="text-xs font-mono text-neutral-400 block mt-1">
+                      {studioInfo.founderFocus}
                     </span>
                   </div>
-
-                  <h4 className="font-heading text-2xl font-bold text-white tracking-tight mb-1 group-hover:text-white break-words">
-                    {founder.name}
-                  </h4>
-                  <span className="text-xs font-mono text-[#ff4b26] font-semibold block mb-2">
-                    {founder.role}
-                  </span>
-                  <div className="text-xs font-mono text-neutral-400 mb-6 pb-4 border-b border-white/[0.08] break-words">
-                    Focus : {founder.focus}
-                  </div>
-
-                  <p className="text-sm text-neutral-300 leading-relaxed mb-6 break-words">
-                    {founder.bio}
-                  </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs font-mono text-neutral-400">
-                  <span>Atelier Paris</span>
-                  <span className="text-white group-hover:text-[#ff4b26] transition-colors flex items-center gap-1">
-                    Contact direct garanti
-                  </span>
+                <div className="max-w-xl text-sm sm:text-base text-neutral-300 leading-relaxed break-words border-t lg:border-t-0 lg:border-l border-white/[0.08] pt-6 lg:pt-0 lg:pl-8">
+                  {studioInfo.founderBio}
                 </div>
-              </motion.div>
-            ))}
+              </div>
+            </motion.div>
           </div>
         </div>
 
-        {/* 4 Values of the Atelier */}
+        {/* 4 Pillars of Approach */}
         <div className="mb-16 w-full">
           <div className="mb-8">
             <span className="text-xs font-mono text-[#ff4b26] uppercase tracking-widest block mb-1">
-              Principes Directeurs
+              Méthodologie & Rigueur
             </span>
             <h3 className="font-heading text-2xl md:text-3xl font-bold text-white tracking-tight">
-              Ce Qui Guide Chaque Décision d'Atelier
+              Notre Approche en 4 Piliers
             </h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 w-full box-border">
-            {STUDIO_VALUES.map((val, i) => (
+            {STUDIO_APPROACH.map((val, i) => (
               <motion.div
                 key={val.number}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="bg-[#111117] border border-white/[0.08] p-6 flex flex-col justify-between hover:border-white/20 transition-colors w-full box-border"
+                className="bg-[#111117] border border-white/[0.08] hover:border-white/20 p-6 flex flex-col justify-between transition-colors w-full box-border"
               >
                 <div>
                   <span className="font-mono text-xs font-bold text-[#ff4b26] block mb-4">
                     {val.number}
                   </span>
-                  <h4 className="font-heading text-base font-bold text-white mb-3 break-words">
+                  <h4 className="font-heading text-base font-bold text-white mb-2 break-words">
                     {val.title}
                   </h4>
                   <p className="text-xs text-neutral-300 leading-relaxed break-words">
@@ -851,13 +939,13 @@ const App: React.FC = () => {
         <div className="p-6 sm:p-8 md:p-12 bg-gradient-to-r from-[#14141d] to-[#0c0c10] border border-white/[0.1] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-8 w-full box-border">
           <div className="max-w-xl">
             <span className="text-xs font-mono text-[#ff4b26] uppercase tracking-widest block mb-2">
-              Rencontrer l'Équipe
+              Collaborer Avec Medar Studio
             </span>
             <h4 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight mb-2 break-words">
-              Envie de créer quelque chose de mémorable ?
+              Donnons vie à votre identité visuelle.
             </h4>
-            <p className="text-xs sm:text-sm text-neutral-300 max-w-xl leading-relaxed break-words">
-              Venez nous exposer votre projet à l’atelier à Paris ou par visioconférence. Nous étudions chaque brief sous 24 heures.
+            <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed break-words">
+              Marques, entreprises, projets sportifs ou créateurs : parlons de vos objectifs et bâtissons une image moderne, forte et mémorable.
             </p>
           </div>
 
@@ -1080,9 +1168,16 @@ const App: React.FC = () => {
       <footer className="border-t border-white/[0.08] pt-12 pb-28 md:pb-20 px-6 md:px-12 bg-[#09090d]">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 text-xs font-mono text-neutral-500">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-white font-bold tracking-tight">MEDAR STUDIO</span>
+            {/* Secret 5-Clicks Admin Trigger: Completely discreet, no counter display */}
+            <span
+              onClick={handleSecretFooterClick}
+              className="text-white font-bold tracking-tight cursor-default select-none"
+              title=""
+            >
+              {studioInfo.studioName.toUpperCase()}
+            </span>
             <span aria-hidden="true">·</span>
-            <span>Paris 10e</span>
+            <span>{studioInfo.city}</span>
             <span aria-hidden="true">·</span>
             <span>Tous droits réservés © 2026</span>
           </div>
@@ -1116,6 +1211,30 @@ const App: React.FC = () => {
 
       {/* Medar Studio AI Advisor Widget */}
       <AIChat />
+
+      {/* Secret Authentification Modal (Code 010904 masqué) */}
+      <SecretAuthModal
+        isOpen={isSecretAuthOpen}
+        onClose={() => setIsSecretAuthOpen(false)}
+        onSuccess={() => {
+          setIsSecretAuthOpen(false);
+          setIsAdminCMSOpen(true);
+        }}
+      />
+
+      {/* Full-Featured Live Site Management CMS */}
+      <AdminCMSModal
+        isOpen={isAdminCMSOpen}
+        onClose={() => setIsAdminCMSOpen(false)}
+        onLogout={() => setIsAdminCMSOpen(false)}
+        projects={projectsList}
+        onUpdateProjects={handleUpdateProjects}
+        services={servicesList}
+        onUpdateServices={handleUpdateServices}
+        studioInfo={studioInfo}
+        onUpdateStudioInfo={handleUpdateStudioInfo}
+        onResetDefaults={handleResetDefaults}
+      />
     </div>
   );
 };
